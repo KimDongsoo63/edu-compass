@@ -1,9 +1,9 @@
-'use client'; // ✅ 클라이언트 컴포넌트 선언
+'use client'; // 클라이언트 컴포넌트 선언
 
 import { useState } from 'react';
 
 export default function CareerForm() {
-  console.log('✅ CareerForm 컴포넌트 렌더링됨'); // 컴포넌트 렌더링 확인용
+  console.log('✅ CareerForm 컴포넌트 렌더링됨');
 
   const [name, setName] = useState('');
   const [interest, setInterest] = useState('');
@@ -13,7 +13,7 @@ export default function CareerForm() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    console.log('🟡 handleSubmit 실행됨'); // ✅ 버튼 클릭 확인 로그
+    console.log('🟡 handleSubmit 실행됨');
 
     setLoading(true);
     setResult('');
@@ -27,11 +27,16 @@ export default function CareerForm() {
 
       const data = await response.json();
 
-      console.log('🧠 GPT 응답:', data); // ✅ GPT 응답 확인용 로그
+      // ✅ 전체 응답을 보기 좋게 출력 (중요!)
+      console.log('🧠 GPT 응답 (전체):', JSON.stringify(data, null, 2));
 
       const gptResult = data.choices?.[0]?.message?.content;
 
-      setResult(gptResult || 'GPT 응답을 불러오지 못했습니다.');
+      if (!gptResult) {
+        setResult('GPT 응답을 불러오지 못했습니다. 응답 구조를 확인해 주세요.');
+      } else {
+        setResult(gptResult);
+      }
     } catch (error) {
       console.error('❌ 에러 발생:', error);
       setResult('에러가 발생했습니다. 다시 시도해주세요.');
