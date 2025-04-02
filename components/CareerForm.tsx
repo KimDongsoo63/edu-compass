@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 export default function CareerForm() {
+    console.log('✅ CareerForm 컴포넌트 렌더링됨'); // ✅ 4. 로그 위치 확인    
   const [name, setName] = useState('');
   const [interest, setInterest] = useState('');
   const [result, setResult] = useState('');
