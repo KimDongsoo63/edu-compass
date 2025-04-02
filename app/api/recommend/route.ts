@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   const { name, interest } = await req.json();
 
+  // ✅ 환경변수 확인 로그
+  console.log('🌐 OPENAI_API_KEY:', process.env.OPENAI_API_KEY);
+
+  // ✅ OpenAI 호출
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -22,7 +26,7 @@ export async function POST(req: Request) {
 
   const data = await response.json();
 
-  console.log('🔍 OpenAI 응답:', data); // ✅ 여기 로그 추가!
+  console.log('🔍 OpenAI 응답:', JSON.stringify(data, null, 2));
 
   return NextResponse.json(data);
 }
