@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -21,7 +21,8 @@ export async function POST(req: Request) {
   });
 
   const data = await response.json();
-  const result = data.choices?.[0]?.message?.content;
 
-  return NextResponse.json({ result });
+  console.log('🔍 OpenAI 응답:', data); // ✅ 여기 로그 추가!
+
+  return NextResponse.json(data);
 }
