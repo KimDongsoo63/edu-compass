@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function CareerForm() {
-  console.log('✅ CareerForm 컴포넌트 렌더링됨'); // 컴포넌트 실행 확인
+  console.log('✅ CareerForm 컴포넌트 렌더링됨'); // 컴포넌트 렌더링 확인용
 
   const [name, setName] = useState('');
   const [interest, setInterest] = useState('');
@@ -12,6 +12,9 @@ export default function CareerForm() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    console.log('🟡 handleSubmit 실행됨'); // ✅ 버튼 클릭 확인 로그
+
     setLoading(true);
     setResult('');
 
@@ -24,7 +27,7 @@ export default function CareerForm() {
 
       const data = await response.json();
 
-      console.log('🧠 GPT 응답:', data); // ✅ 응답 디버깅용 로그
+      console.log('🧠 GPT 응답:', data); // ✅ GPT 응답 확인용 로그
 
       const gptResult = data.choices?.[0]?.message?.content;
 
