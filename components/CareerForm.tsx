@@ -3,6 +3,8 @@
 import { useState } from 'react';
 
 export default function CareerForm() {
+  console.log('✅ CareerForm 컴포넌트 렌더링됨');
+
   const [name, setName] = useState('');
   const [interest, setInterest] = useState('');
   const [result, setResult] = useState('');
@@ -21,7 +23,10 @@ export default function CareerForm() {
       });
 
       const data = await response.json();
-      const gptResult = data.choices?.[0]?.message?.content;
+      console.log('🧠 GPT 응답:', data);
+
+      // 응답 구조가 message.content일 경우 우선 사용하고, 없으면 전체를 string으로 출력
+      const gptResult = data.choices?.[0]?.message?.content || JSON.stringify(data);
       setResult(gptResult || 'GPT 응답을 불러오지 못했습니다.');
     } catch (error) {
       console.error('❌ 에러 발생:', error);
@@ -31,17 +36,9 @@ export default function CareerForm() {
     setLoading(false);
   };
 
-  const handleDownloadPDF = async () => {
-    const html2pdf = (await import('html2pdf.js')).default;
-    const element = document.getElementById('recommend-result');
-    if (element) {
-      html2pdf().from(element).save('recommendation.pdf');
-    }
-  };
-
   return (
-    <>
-      <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
+    <form onSubmit={handleSubmit} style={{ marginTop: '2rem', textAlign: 'center' }}>
+      <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
           placeholder="이름"
@@ -61,39 +58,14 @@ export default function CareerForm() {
         <button type="submit" disabled={loading}>
           {loading ? '추천 중...' : 'GPT로 진로 추천받기'}
         </button>
-      </form>
+      </div>
 
       {result && (
-        <div
-          id="recommend-result"
-          style={{
-            marginTop: '2rem',
-            padding: '1rem',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: '#f9f9f9',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
+        <div style={{ marginTop: '1rem', whiteSpace: 'pre-wrap', textAlign: 'center' }}>
           <h3>✅ 추천 결과:</h3>
           <p>{result}</p>
-
-          <button
-            onClick={handleDownloadPDF}
-            style={{
-              marginTop: '1rem',
-              padding: '0.5rem 1rem',
-              backgroundColor: '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            📄 결과 PDF 저장
-          </button>
         </div>
       )}
-    </>
+    </form>
   );
 }
