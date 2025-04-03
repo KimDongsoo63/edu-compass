@@ -28,9 +28,10 @@ export default function CareerForm() {
       });
 
       const data = await response.json();
-      const gptResult = data.choices?.[0]?.message?.content || 'GPT 응답 없음';
+      const gptResult = data.choices?.[0]?.message?.content || 'GPT 응답을 불러오지 못했습니다.';
       setResult(gptResult);
     } catch (error) {
+      console.error('❌ 오류:', error);
       setResult('에러 발생: ' + (error as any)?.message);
     }
 
@@ -38,16 +39,15 @@ export default function CareerForm() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '900px', margin: 'auto', textAlign: 'center' }}>
+    <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
       {/* 입력 폼 */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
         <input
           type="text"
           placeholder="이름"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          style={{ marginRight: '1rem' }}
         />
         <input
           type="text"
@@ -55,16 +55,15 @@ export default function CareerForm() {
           value={interest}
           onChange={(e) => setInterest(e.target.value)}
           required
-          style={{ marginRight: '1rem' }}
         />
         <button type="submit" disabled={loading}>
           {loading ? '추천 중...' : 'GPT로 진로 추천받기'}
         </button>
       </form>
 
-      {/* 결과 */}
+      {/* 결과 출력 */}
       {result && (
-        <div ref={resultRef} style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>
+        <div ref={resultRef} style={{ marginTop: '2rem', whiteSpace: 'pre-wrap' }}>
           <h3>✅ 추천 결과:</h3>
           <p>{result}</p>
         </div>
