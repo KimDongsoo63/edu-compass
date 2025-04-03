@@ -24,14 +24,13 @@ export default function CareerForm() {
       const gptResult = data.choices?.[0]?.message?.content;
       setResult(gptResult || 'GPT 응답을 불러오지 못했습니다.');
     } catch (error) {
-      console.error('에러 발생:', error);
+      console.error('❌ 에러 발생:', error);
       setResult('에러가 발생했습니다. 다시 시도해주세요.');
     }
 
     setLoading(false);
   };
 
-  // ✅ PDF 저장 함수
   const handleDownloadPDF = async () => {
     const html2pdf = (await import('html2pdf.js')).default;
     const element = document.getElementById('recommend-result');
@@ -65,11 +64,20 @@ export default function CareerForm() {
       </form>
 
       {result && (
-        <div id="recommend-result" style={{ marginTop: '2rem', whiteSpace: 'pre-wrap' }}>
+        <div
+          id="recommend-result"
+          style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            backgroundColor: '#f9f9f9',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
           <h3>✅ 추천 결과:</h3>
           <p>{result}</p>
 
-          {/* ✅ 버튼은 항상 결과 아래에 표시 */}
           <button
             onClick={handleDownloadPDF}
             style={{
