@@ -1,103 +1,125 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 
 export default function CareerForm() {
-  console.log('✅ CareerForm 컴포넌트 렌더링됨');
-
   const [name, setName] = useState('');
   const [interest, setInterest] = useState('');
-  const [result, setResult] = useState('');
+  const [recommendation, setRecommendation] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  useEffect(() => {
+    const loadFont = async () => {
+      const fontUrl = '/fonts/NanumGothic.ttf';
+      const response = await fetch(fontUrl);
+      const fontData = await response.arrayBuffer();
+      const fontString = btoa(
+        new Uint8Array(fontData).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+      const doc = new jsPDF();
+      doc.addFileToVFS('NanumGothic.ttf', fontString);
+      doc.addFont('NanumGothic.ttf', 'NanumGothic', 'normal');
+    };
+    loadFont();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!name || !interest) return;
+
     setLoading(true);
-    setResult('');
+    setError(false);
+    setRecommendation('');
 
     try {
       const response = await fetch('/api/recommend', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ name, interest }),
       });
 
       const data = await response.json();
-      console.log('🧠 GPT 응답:', data);
+      const content = data.choices?.[0]?.message?.content;
+      console.log('💬 GPT 응답:', content);
 
-      const gptResult = data.choices?.[0]?.message?.content;
-      setResult(gptResult || 'GPT 응답을 불러오지 못했습니다. 응답 구조를 확인해 주세요.');
-    } catch (error) {
-      console.error('❌ 에러 발생:', error);
-      setResult('에러가 발생했습니다. 다시 시도해 주세요.');
+      if (content) {
+        setRecommendation(content);
+      } else {
+        setRecommendation('GPT 응답을 불러오지 못했습니다. 응답 구조를 확인해 주세요.');
+      }
+    } catch (err) {
+      console.error('❌ 오류:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  const handleSavePDF = () => {
+  const handleSavePdf = () => {
     const doc = new jsPDF();
-    doc.setFont('helvetica');
+    doc.setFont('NanumGothic');
     doc.setFontSize(12);
-    doc.text('📌 EDU Compass GPT 진로 추천 결과', 10, 10);
-    doc.text(`👤 이름: ${name}`, 10, 20);
-    doc.text(`🎯 관심 분야: ${interest}`, 10, 30);
 
-    // 줄바꿈을 고려하여 여러 줄로 처리
-    const splitResult = doc.splitTextToSize(result, 180);
-    doc.text(splitResult, 10, 50);
+    doc.text(`👩‍🎓 EDU Compass GPT 진로 추천 결과`, 10, 20);
+    doc.text(`이름: ${name}`, 10, 30);
+    doc.text(`관심 분야: ${interest}`, 10, 40);
+
+    const lines = doc.splitTextToSize(`추천 결과: ${recommendation}`, 180);
+    doc.text(lines, 10, 50);
 
     doc.save(`${name}_진로추천결과.pdf`);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
-      <input
-        type="text"
-        placeholder="이름"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-        style={{ marginRight: '1rem' }}
-      />
-      <input
-        type="text"
-        placeholder="관심 분야"
-        value={interest}
-        onChange={(e) => setInterest(e.target.value)}
-        required
-        style={{ marginRight: '1rem' }}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? '추천 중...' : 'GPT로 진로 추천받기'}
-      </button>
+    <div className="p-8 text-center">
+      <h1 className="text-xl font-bold mb-2">🎓 EDU Compass에 오신 걸 환영합니다!</h1>
+      <p className="mb-4">AI가 여러분의 진로를 도와드립니다!</p>
 
-      {result && (
-        <>
-          <div style={{ marginTop: '1rem', whiteSpace: 'pre-wrap' }}>
-            <h3>✅ 추천 결과:</h3>
-            <p>{result}</p>
+      <div className="space-x-4 mb-4">
+        <input
+          type="text"
+          placeholder="이름"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <input
+          type="text"
+          placeholder="관심 분야"
+          value={interest}
+          onChange={(e) => setInterest(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <button
+          onClick={handleSubmit}
+          className="bg-black text-white px-4 py-1 rounded hover:bg-gray-800"
+        >
+          GPT로 진로 추천받기
+        </button>
+      </div>
+
+      {loading && <p>로딩 중...</p>}
+      {error && <p className="text-red-500">에러가 발생했습니다. 다시 시도해 주세요.</p>}
+
+      {recommendation && (
+        <div className="mt-4 max-w-3xl mx-auto text-left">
+          <p className="mb-2">
+            <span className="inline-block align-middle text-green-600 text-xl mr-2">✅</span>
+            <strong>추천 결과:</strong>
+          </p>
+          <p className="whitespace-pre-wrap leading-relaxed">{recommendation}</p>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleSavePdf}
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+            >
+              추천 결과 PDF 저장
+            </button>
           </div>
-
-          {/* ✅ PDF 저장 버튼 */}
-          <button
-            type="button"
-            onClick={handleSavePDF}
-            style={{
-              marginTop: '1rem',
-              padding: '0.5rem 1rem',
-              backgroundColor: '#000',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            추천 결과 PDF 저장
-          </button>
-        </>
+        </div>
       )}
-    </form>
+    </div>
   );
 }
