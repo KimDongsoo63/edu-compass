@@ -25,7 +25,6 @@ export default function CareerForm() {
       const data = await response.json();
       console.log('🧠 GPT 응답:', data);
 
-      // 응답 구조가 message.content일 경우 우선 사용하고, 없으면 전체를 string으로 출력
       const gptResult = data.choices?.[0]?.message?.content || JSON.stringify(data);
       setResult(gptResult || 'GPT 응답을 불러오지 못했습니다.');
     } catch (error) {
@@ -37,8 +36,8 @@ export default function CareerForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '2rem', textAlign: 'center' }}>
-      <div style={{ marginBottom: '1rem' }}>
+    <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="이름"
@@ -58,14 +57,16 @@ export default function CareerForm() {
         <button type="submit" disabled={loading}>
           {loading ? '추천 중...' : 'GPT로 진로 추천받기'}
         </button>
-      </div>
+      </form>
 
-      {result && (
-        <div style={{ marginTop: '1rem', whiteSpace: 'pre-wrap', textAlign: 'center' }}>
-          <h3>✅ 추천 결과:</h3>
-          <p>{result}</p>
-        </div>
-      )}
-    </form>
+      <div style={{ marginTop: '2rem', maxWidth: '800px', marginInline: 'auto', whiteSpace: 'pre-wrap' }}>
+        {result && (
+          <>
+            <h3>✅ 추천 결과:</h3>
+            <p>{result}</p>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
