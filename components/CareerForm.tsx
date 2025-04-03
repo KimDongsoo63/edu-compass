@@ -7,7 +7,7 @@ export default function CareerForm() {
   const [interest, setInterest] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
-  const resultRef = useRef<HTMLDivElement>(null); // 👈 자동 스크롤용
+  const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (resultRef.current) {
@@ -28,20 +28,19 @@ export default function CareerForm() {
       });
 
       const data = await response.json();
-      const gptResult = data.choices?.[0]?.message?.content || JSON.stringify(data);
+      const gptResult = data.choices?.[0]?.message?.content || 'GPT 응답 없음';
       setResult(gptResult);
     } catch (error) {
-      console.error('❌ 에러 발생:', error);
-      setResult('에러가 발생했습니다. 다시 시도해주세요.');
+      setResult('에러 발생: ' + (error as any)?.message);
     }
 
     setLoading(false);
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      {/* 폼 영역 */}
-      <form onSubmit={handleSubmit}>
+    <div style={{ padding: '2rem', maxWidth: '900px', margin: 'auto', textAlign: 'center' }}>
+      {/* 입력 폼 */}
+      <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
         <input
           type="text"
           placeholder="이름"
@@ -63,25 +62,13 @@ export default function CareerForm() {
         </button>
       </form>
 
-      {/* 결과 영역 */}
-      <div
-        ref={resultRef}
-        style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          maxWidth: '900px',
-          marginInline: 'auto',
-          whiteSpace: 'pre-wrap',
-          textAlign: 'left',
-        }}
-      >
-        {result && (
-          <>
-            <h3>✅ 추천 결과:</h3>
-            <p>{result}</p>
-          </>
-        )}
-      </div>
+      {/* 결과 */}
+      {result && (
+        <div ref={resultRef} style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>
+          <h3>✅ 추천 결과:</h3>
+          <p>{result}</p>
+        </div>
+      )}
     </div>
   );
 }
