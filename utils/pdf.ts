@@ -1,12 +1,12 @@
 // utils/pdf.ts
 
 import jsPDF from 'jspdf';
-import '@/fonts/NanumGothic-normal'; // ✅ 폰트 등록 파일 경로 정확히
+import './NanumGothic-normal'; // ✅ 상대 경로로 변경
 
 export const generatePDF = (name: string, interest: string, result: string) => {
   const doc = new jsPDF();
 
-  doc.setFont('NanumGothic'); // base64 등록된 폰트 사용
+  doc.setFont('NanumGothic');
   doc.setFontSize(12);
 
   const content = `
